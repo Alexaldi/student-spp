@@ -74,7 +74,7 @@ export const History = () => {
                         <Navbar />
                     </div>
                 </div>
-                <section id="home" className={`flex md:flex-row flex-col ${styles.paddingY}`}>
+                <section className={`flex md:flex-row flex-col ${styles.paddingY}`}>
                     <div className={`flex-1 ${styles.flexStart} flex-col xl:px-0 sm:px-16 px-6`}>
                         <div style={{ height: 400, width: '100%' }}>
                             <Box width={800} autoHeight>
@@ -84,9 +84,6 @@ export const History = () => {
                                     width={900}
                                     sx={{
                                         '& .MuiDataGrid-cell': {
-                                            color: 'white',
-                                        },
-                                        '& .MuiDataGrid-columnHeader': {
                                             color: 'white',
                                         },
                                         '& .MuiDataGrid-footerContainer': {
@@ -115,6 +112,9 @@ export const History = () => {
                                         '& .MuiSvgIcon-root MuiSvgIcon-fontSizeSmall css-ptiqhd-MuiSvgIcon-root': {
                                             color: '#fff',
                                         },
+                                        '& .MuiDataGrid-columnHeader': {
+                                            color: '#fff',
+                                        },
 
                                     }}
                                     components={{
@@ -128,6 +128,13 @@ export const History = () => {
                                 />
                             </Box>
                         </div>
+                    </div>
+                    <div className={`flex-1 flex ${styles.flexCenter} md:my-0 my-10 relative`}>
+                        {/* gradient start */}
+                        <div className="absolute z-[0] w-[40%] h-[35%] top-0 pink__gradient" />
+                        <div className="absolute z-[1] w-[80%] h-[80%] rounded-full white__gradient bottom-40" />
+                        <div className="absolute z-[0] w-[50%] h-[50%] right-20 bottom-20 blue__gradient" />
+                        {/* gradient end */}
                     </div>
                 </section>
             </div>

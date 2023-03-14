@@ -4,7 +4,6 @@ import binance from "./binance.png";
 import card from "./card.png";
 import coinbase from "./coinbase.png";
 import dropbox from "./dropbox.png";
-import logo from "./logo.svg";
 import quotes from "./quotes.svg";
 import robot from "./robot.png";
 import send from "./Send.svg";
@@ -23,7 +22,8 @@ import twitter from "./twitter.svg";
 import people01 from "./people01.png";
 import people02 from "./people02.png";
 import people03 from "./people03.png";
-
+import nekat from "./nekat.ico"
+import logo from "./nekat.png"
 export {
   airbnb,
   bill,
@@ -50,4 +50,5 @@ export {
   people01,
   people02,
   people03,
+  nekat
 };

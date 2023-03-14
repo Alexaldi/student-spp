@@ -1,8 +1,7 @@
-import styles from "./style";
-import { Billing, Business, CardDeal, Clients, Footer, Navbar, Stats, Testimonials, Hero } from "./components";
 import { BrowserRouter, Route, Routes } from "react-router-dom";
 import { Home } from "./pages/Home/Home"
 import { History } from "./pages/History/History";
+import Login from "./pages/Login/Login";
 const App = () => (
   <>
     <BrowserRouter  >
@@ -10,6 +9,10 @@ const App = () => (
         <Route
           path="/"
           element={<Home />}
+        />
+        <Route
+          path="/login"
+          element={<Login />}
         />
         <Route
           path="/pembayaran"
