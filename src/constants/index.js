@@ -15,14 +15,15 @@ import {
   star
 } from "../assets";
 
-export const navLinks = [{
-  id: "/pembayaran",
-  title: "History Pembayaran",
-},
-  // {
-  //   id: "/profile",
-  //   title: "Profile Siswa",
-  // }
+export const navLinks = [
+  {
+    id: "/",
+    title: "Home",
+  },
+  {
+    id: "/pembayaran",
+    title: "History Pembayaran",
+  },
 ];
 
 export const features = [{

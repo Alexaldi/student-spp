@@ -9,6 +9,10 @@
     "preview": "vite preview"
   },
   "dependencies": {
+    "@emotion/react": "^11.10.6",
+    "@emotion/styled": "^11.10.6",
+    "@mui/material": "^5.11.13",
+    "@mui/x-data-grid": "^6.0.1",
     "flowbite": "^1.6.4",
     "flowbite-react": "^0.4.2",
     "localforage": "^1.10.0",
