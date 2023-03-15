@@ -1,3 +1,4 @@
+import axios from "axios";
 import {
   people01,
   people02,
@@ -23,6 +24,10 @@ export const navLinks = [
   {
     id: "/pembayaran",
     title: "History Pembayaran",
+  },
+  {
+    id: "/profile",
+    title: "Profile",
   },
 ];
 
@@ -71,17 +76,26 @@ export const feedback = [{
 
 export const stats = [{
   id: "stats-1",
-  title: "User Active",
-  value: "3800+",
-},
-{
-  id: "stats-2",
-  title: "Trusted by Company",
-  value: "230+",
+  title: "Kelas",
+  value: () => {
+    const token = JSON.parse(atob(Cookies.get("Siswa")))
+    console.log(token);
+    axios.get(`http://localhost:5000/pembayaranU/${token.id_siswa}?limit=10&orderBy=desc`, {
+      headers: {
+        Authorization: `Bearer ${Cookies.get("accessToken")}`
+      }
+    })
+      .then(res => {
+        return res.data.reduce((acc, curr) => acc + curr.jumlah_bayar, 0);
+      })
+      .catch(err => {
+        console.log(err);
+      })
+  },
 },
 {
   id: "stats-3",
-  title: "Transaction",
+  title: "Total Pembayaran",
   value: "$230M+",
 },
 ];

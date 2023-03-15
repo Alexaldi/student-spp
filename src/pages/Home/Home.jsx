@@ -5,7 +5,7 @@ import styles from '../../style'
 export const Home = () => {
     return (
         <>
-            <div className="bg-primary w-full overflow-hidden">
+            <div className="bg-primary w-full overflow-hidden relative">
                 <div className={`${styles.paddingX} ${styles.flexCenter}`}>
                     <div className={`${styles.boxWidth}`}>
                         <Navbar />
@@ -20,7 +20,6 @@ export const Home = () => {
                     <div className={`${styles.boxWidth}`}>
                         <Stats />
                         <Business />
-                        <Footer />
                     </div>
                 </div>
             </div>
