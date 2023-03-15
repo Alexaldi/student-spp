@@ -1,71 +1,160 @@
 import { Table } from 'flowbite-react'
-import React from 'react'
+import React, { useEffect, useState } from 'react'
 import styles from '../../style'
 import { Footer, Navbar } from '../../components'
 import { DataGrid, GridToolbar } from '@mui/x-data-grid';
-import { Box } from '@mui/material';
+import { Box, ThemeProvider, createTheme } from '@mui/material';
 import styled from '@emotion/styled';
+import { useNavigate } from 'react-router-dom';
+import Cookies from 'js-cookie';
 
-
-const WhitePagination = styled('div')({
-    '& .MuiPaginationItem-root': {
-        color: '#fff',
+const darkTheme = createTheme({
+    palette: {
+        mode: 'dark',
     },
 });
 
-const WhiteRowsPerPage = styled('div')({
-    '& .MuiFormControl-root': {
-        color: '#fff',
-    },
-});
-
-const columns = [
-    { field: 'productName', headerName: 'Product name', width: 250 },
-    { field: 'color', headerName: 'Color', width: 130 },
-    { field: 'category', headerName: 'Category', width: 130 },
-    { field: 'price', headerName: 'Price', width: 130 },
+export const Pembayarancolumns = [
     {
-        field: 'edit',
-        headerName: 'Edit',
+        field: 'no',
+        headerName: 'No',
+        width: 60,
         sortable: false,
+        valueGetter: (params) => {
+            const rowIndex = params.api.getRowIndex(params.row.id_pembayaran);
+            return rowIndex + 1;
+        },
+    },
+    {
+        field: 'nama_petugas',
+        headerName: 'Nama Petugas',
+        width: 130,
+        valueGetter: (params) => {
+            return params.row.petugas ? `${params.row.petugas.nama_petugas}` : ''
+        }
+    },
+    {
+        field: 'nisn',
+        headerName: 'Nisn',
+        width: 120,
+        valueGetter: (params) => {
+            return params.row.siswa ? `${params.row.siswa.nisn}` : ''
+        }
+    },
+    {
+        field: 'name',
+        headerName: 'Name',
+        width: 180,
+        valueGetter: (params) => {
+            return params.row.siswa ? `${params.row.siswa.name}` : ''
+        }
+    },
+    {
+        field: 'kelas',
+        headerName: 'Kelas',
+        width: 130,
+        valueGetter: (params) => {
+            return params.row.siswa ? `${params.row.siswa.kelas.angkatan} ${params.row.siswa.kelas.kelas}` : ''
+        }
+    },
+    {
+        field: 'tahun',
+        headerName: 'Tahun Bayar',
         width: 100,
-        disableClickEventBubbling: true,
-        renderCell: (params) => (
-            <a
-                href="/tables"
-                className="font-medium text-blue-600 hover:underline dark:text-blue-500"
-            >
-                Edit
-            </a>
-        ),
+        valueGetter: (params) => {
+            return params.row.spp ? `${params.row.spp.tahun} ` : ''
+        }
+    },
+    {
+        field: 'tgl_bayar',
+        headerName: 'Tanggal Bayar',
+        width: 130,
+        valueGetter: (params) => {
+            const formatDate = (dateString) => {
+                const options = { year: 'numeric', month: 'long', day: 'numeric' };
+                return new Date(dateString).toLocaleDateString('id-ID', options);
+            };
+
+            return formatDate(params.row.tgl_bayar)
+        }
+
+    },
+    {
+        field: 'jumlah_bayar',
+        headerName: 'Total Bayar',
+        width: 140,
+        valueGetter: (params) => {
+            const nominal = params.value || 0;
+            const formattedNominal = nominal.toLocaleString('id-ID', {
+                minimumFractionDigits: 0,
+            });
+            return `Rp. ${formattedNominal}`
+        }
+    },
+    {
+        field: 'keterangan',
+        headerName: 'Keterangan',
+        width: 140,
+        valueGetter: (params) => {
+            return params.value
+        }
+    },
+    {
+        field: 'status',
+        headerName: 'Status',
+        width: 120,
+        valueGetter: (params) => {
+            const value = params.row.status
+            const status = value === true ? 'Lunas' : 'Belum Lunas';
+            return status
+        },
+        renderCell: (params) => {
+            const value = params.row.status
+            const status =
+                value === true ? 'Lunas' : 'Belum Lunas';
+            return (
+                <div
+                    style={{
+                        backgroundColor: value === true ? "#4CAF50" : "crimson",
+                        color: "white",
+                        padding: 5,
+                        borderRadius: 5,
+                        textAlign: "center",
+                    }}
+                >
+                    {status}
+                </div>
+            );
+        },
     },
 ];
 
-const rows = [
-    {
-        id: 1,
-        productName: 'Apple MacBook Pro 17"',
-        color: 'Silver',
-        category: 'Laptop',
-        price: '$2999',
-    },
-    {
-        id: 2,
-        productName: 'Microsoft Surface Pro',
-        color: 'White',
-        category: 'Laptop PC',
-        price: '$1999',
-    },
-    {
-        id: 3,
-        productName: 'Magic Mouse 2',
-        color: 'Black',
-        category: 'Accessories',
-        price: '$99',
-    },
-];
 
 export const History = () => {
+    const [data, setData] = useState([]);
+    useEffect(() => {
+        getPembayaran();
+    }, []);
+
+    const navigate = useNavigate()
+
+    const getPembayaran = async () => {
+        const token = Cookies.get("Siswa")
+        const siswaId = token.id_siswa
+        try {
+            const response = await axios.get(`http://localhost:5000/pembayaranU/${siswaId}?limit=10&orderBy=desc`,
+                {
+                    headers: {
+                        Authorization: `Bearer ${Cookies.get("accessToken")}`
+                    },
+                });
+            setData(response.data);
+        } catch (error) {
+            if (error.response && error.response.status === 401) {
+                navigate("/login");
+            }
+        }
+    }
     return (
         <>
             <div className="bg-primary h-screen overflow-hidden">
@@ -80,62 +169,35 @@ export const History = () => {
                             <div className={`flex-1 ${styles.flexStart} flex-col xl:px-0 sm:px-16 px-6`}>
                                 <div style={{ height: 400, width: '100%' }}>
                                     <h2 className="text-3xl font-bold text-white mb-10">History Pembayaran</h2>
-                                    <Box width={800} autoHeight>
-                                        <DataGrid rows={rows} columns={columns} pageSize={9}
-                                            rowsPerPageOptions={[9]}
-                                            autoHeight
-                                            width={900}
-                                            sx={{
-                                                '& .MuiDataGrid-cell': {
-                                                    color: 'white',
-                                                },
-                                                '& .MuiDataGrid-footerContainer': {
-                                                    backgroundColor: 'black',
-                                                    '& .MuiDataGrid-selectedRowCount': {
+                                    <ThemeProvider theme={darkTheme}>
+                                        <Box width="100%" autoHeight>
+                                            <DataGrid
+                                                rows={data}
+                                                columns={Pembayarancolumns}
+                                                getRowId={(row) => row.id_pembayaran}
+                                                pageSize={9}
+                                                rowsPerPageOptions={[9]}
+                                                autoHeight
+                                                width={900}
+                                                components={{
+                                                    Toolbar: GridToolbar,
+                                                    RowsPerPageOptions: {
+                                                        style: {
+                                                            color: '#fff',
+                                                        }
+                                                    },
+                                                }}
+                                                localeText={{
+                                                    noRowsLabel: 'Anda Belum Melakukan Pembayaran',
+                                                }}
+                                                style={{
+                                                    '& .MuiDataGrid-overlay.css-1w53k9d-MuiDataGrid-overlay': {
                                                         color: 'white',
                                                     },
-                                                    '& .MuiDataGrid-rowCount': {
-                                                        color: 'white',
-                                                    },
-                                                },
-                                                '& .MuiTablePagination-root': {
-                                                    '& .MuiTablePagination-select': {
-                                                        color: 'white',
-                                                    },
-                                                    '& .MuiTablePagination-caption': {
-                                                        color: 'white',
-                                                    },
-                                                },
-                                                '& .MuiTablePagination-displayedRows': {
-                                                    color: 'white',
-                                                },
-                                                '& .MuiTablePagination-selectLabel ': {
-                                                    color: 'white',
-                                                },
-                                                '& .MuiSvgIcon-root MuiSvgIcon-fontSizeSmall css-ptiqhd-MuiSvgIcon-root': {
-                                                    color: '#fff',
-                                                },
-                                                '& .MuiDataGrid-columnHeader': {
-                                                    color: '#fff',
-                                                },
-                                                '& .MuiTablePagination- actions': {
-                                                    color: '#fff',
-                                                },
-                                                '& .MuiDataGrid-menuIcon': {
-                                                    color: '#fff',
-                                                }
-
-                                            }}
-                                            components={{
-                                                Toolbar: GridToolbar,
-                                                RowsPerPageOptions: {
-                                                    style: {
-                                                        color: '#fff',
-                                                    }
-                                                },
-                                            }}
-                                        />
-                                    </Box>
+                                                }}
+                                            />
+                                        </Box>
+                                    </ThemeProvider>
                                 </div>
                             </div>
                             <div className={`flex-1 flex ${styles.flexCenter} md:my-0 my-10 relative`}>
@@ -153,3 +215,4 @@ export const History = () => {
 
     )
 }
+
