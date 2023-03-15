@@ -7,6 +7,7 @@ import { Box, ThemeProvider, createTheme } from '@mui/material';
 import styled from '@emotion/styled';
 import { useNavigate } from 'react-router-dom';
 import Cookies from 'js-cookie';
+import axios, { isAxiosError } from 'axios';
 
 const darkTheme = createTheme({
     palette: {
@@ -15,16 +16,6 @@ const darkTheme = createTheme({
 });
 
 export const Pembayarancolumns = [
-    {
-        field: 'no',
-        headerName: 'No',
-        width: 60,
-        sortable: false,
-        valueGetter: (params) => {
-            const rowIndex = params.api.getRowIndex(params.row.id_pembayaran);
-            return rowIndex + 1;
-        },
-    },
     {
         field: 'nama_petugas',
         headerName: 'Nama Petugas',
@@ -132,29 +123,46 @@ export const Pembayarancolumns = [
 
 export const History = () => {
     const [data, setData] = useState([]);
+    const [token, setToken] = useState([]);
+    const [isLoading, setIsLoading] = useState(true);
     useEffect(() => {
         getPembayaran();
-    }, []);
+    }, [token.id_siswa]);
 
     const navigate = useNavigate()
 
     const getPembayaran = async () => {
-        const token = Cookies.get("Siswa")
-        const siswaId = token.id_siswa
-        try {
-            const response = await axios.get(`http://localhost:5000/pembayaranU/${siswaId}?limit=10&orderBy=desc`,
-                {
-                    headers: {
-                        Authorization: `Bearer ${Cookies.get("accessToken")}`
-                    },
-                });
-            setData(response.data);
-        } catch (error) {
-            if (error.response && error.response.status === 401) {
-                navigate("/login");
+        const cookie = Cookies.get("Siswa")
+        if (cookie !== undefined) {
+            const data = JSON.parse(cookie)
+            setToken(data)
+        }
+        if (token.id_siswa) {
+            try {
+                setIsLoading(true);
+                console.log(token.id_siswa);
+                const response = await axios.get(`http://localhost:5000/pembayaranU/${token.id_siswa}?limit=10&orderBy=desc`,
+                    {
+                        headers: {
+                            Authorization: `Bearer ${Cookies.get("accessToken")}`
+                        },
+                    });
+                console.log(response.data);
+                setData(response.data);
+            } catch (error) {
+                console.log(error);
+                if (error.response) {
+                    if (error.response && (error.response.status === 401 || error.response.status === 403)) {
+                        navigate('/login');
+                    }
+                }
+            } finally {
+
+                setIsLoading(false); // set loading state to false
             }
         }
     }
+    console.log(data);
     return (
         <>
             <div className="bg-primary h-screen overflow-hidden">
@@ -168,36 +176,41 @@ export const History = () => {
                         <section className={`flex md:flex-row flex-col md:py-14 py-4`}>
                             <div className={`flex-1 ${styles.flexStart} flex-col xl:px-0 sm:px-16 px-6`}>
                                 <div style={{ height: 400, width: '100%' }}>
-                                    <h2 className="text-3xl font-bold text-white mb-10">History Pembayaran</h2>
-                                    <ThemeProvider theme={darkTheme}>
-                                        <Box width="100%" autoHeight>
-                                            <DataGrid
-                                                rows={data}
-                                                columns={Pembayarancolumns}
-                                                getRowId={(row) => row.id_pembayaran}
-                                                pageSize={9}
-                                                rowsPerPageOptions={[9]}
-                                                autoHeight
-                                                width={900}
-                                                components={{
-                                                    Toolbar: GridToolbar,
-                                                    RowsPerPageOptions: {
-                                                        style: {
-                                                            color: '#fff',
-                                                        }
-                                                    },
-                                                }}
-                                                localeText={{
-                                                    noRowsLabel: 'Anda Belum Melakukan Pembayaran',
-                                                }}
-                                                style={{
-                                                    '& .MuiDataGrid-overlay.css-1w53k9d-MuiDataGrid-overlay': {
-                                                        color: 'white',
-                                                    },
-                                                }}
-                                            />
-                                        </Box>
-                                    </ThemeProvider>
+                                    {isLoading ? (
+                                        <div className="absolute top-0 right-0 bottom-0 left-0 flex items-center justify-center bg-gray-750 bg-opacity-50">
+                                            <div
+                                                class="inline-block h-8 w-8 animate-spin rounded-full border-4 border-solid border-current border-r-transparent align-[-0.125em] text-secondary motion-reduce:animate-[spin_1.5s_linear_infinite]"
+                                                role="status">
+                                                <span
+                                                    class="!absolute !-m-px !h-px !w-px !overflow-hidden !whitespace-nowrap !border-0 !p-0 ![clip:rect(0,0,0,0)]"
+                                                >Loading...</span >
+                                            </div>
+                                        </div>) :
+                                        (
+                                            <>
+                                                <h2 className="text-3xl font-bold text-white mb-10">History Pembayaran</h2>
+                                                <ThemeProvider theme={darkTheme}>
+                                                    <Box width="100%" >
+                                                        <DataGrid
+                                                            rows={data}
+                                                            columns={Pembayarancolumns}
+                                                            getRowId={(row) => row.id_pembayaran}
+                                                            pageSize={9}
+                                                            rowsPerPageOptions={[9]}
+                                                            autoHeight
+                                                            width={900}
+                                                            components={{
+                                                                Toolbar: GridToolbar,
+                                                            }}
+                                                            localeText={{
+                                                                noRowsLabel: 'Anda Belum Melakukan Pembayaran',
+                                                            }}
+                                                        />
+                                                    </Box>
+                                                </ThemeProvider>
+                                            </>
+                                        )
+                                    }
                                 </div>
                             </div>
                             <div className={`flex-1 flex ${styles.flexCenter} md:my-0 my-10 relative`}>

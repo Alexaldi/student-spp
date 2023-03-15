@@ -7,6 +7,7 @@ import { useNavigate } from "react-router-dom";
 
 const Stats = () => {
   const [pembayaran, setPembayaran] = useState(0);
+  const [token, setToken] = useState([]);
   useEffect(() => {
     getSiswa()
   }, [])
@@ -14,13 +15,16 @@ const Stats = () => {
   const navigate = useNavigate()
   const getSiswa = async () => {
     try {
-      const token = JSON.parse(atob(Cookies.get("Siswa")))
+      const data = JSON.parse(Cookies.get("Siswa"))
+      if (data !== undefined) {
+        setToken(data)
+      }
       const response = await axios.get(`http://localhost:5000/pembayaranU/${token.id_siswa}?limit=10&orderBy=desc`, {
         headers: {
           Authorization: `Bearer ${Cookies.get("accessToken")}`
         }
       })
-      const total = response.reduce((acc, curr) => acc + curr.jumlah_bayar, 0)
+      const total = response.data.reduce((acc, curr) => acc + curr.jumlah_bayar, 0);
       setPembayaran(total)
     } catch (error) {
       if (error.response) {
@@ -37,7 +41,7 @@ const Stats = () => {
           Rp.{pembayaran.toLocaleString("id-ID")}
         </h4>
         <p className="font-poppins font-normal xs:text-[20.45px] text-[15.45px] xs:leading-[26.58px] leading-[21.58px] text-gradient uppercase ml-3">
-          Pembayaran
+          Total Pembayaran
         </p>
       </div>
     </section>

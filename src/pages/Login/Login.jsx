@@ -26,7 +26,7 @@ const Login = () => {
     const [state, dispatch] = useContext(AppContext);
 
     useEffect(() => {
-        if (state.user_token) {
+        if (Cookies.get("accesToken")) {
             setTimeout(() => {
                 navigate('/');
             }, 1000);
@@ -36,7 +36,7 @@ const Login = () => {
     const handleSuccess = ({ accessToken }) => {
         Cookies.set("accessToken", accessToken)
         const rawSiswa = jwtDecode(accessToken)
-        const siswa = btoa(JSON.stringify(rawSiswa));
+        const siswa = JSON.stringify(rawSiswa);
         Cookies.set("Siswa", siswa)
         Swal.fire({
             icon: 'success',
@@ -79,7 +79,6 @@ const Login = () => {
             }
         })
     }
-
     return (
         <>
             <div className="bg-gradient-to-br from-black to-gray-900 h-screen flex flex-col justify-center items-center">
